@@ -1,0 +1,6 @@
+{
+  "name": "thrum-client",
+  "version": "0.1.0",
+  "description": "Install and manage the Thrum activity tracker — captures one OTLP span per assistant turn from Claude Code, Codex CLI, and Cursor.",
+  "homepage": "https://github.com/thrum-labs/thrum-client"
+}
