@@ -53,7 +53,7 @@ You'll need [uv](https://docs.astral.sh/uv/) (or [pipx](https://pipx.pypa.io/)) 
 ```bash
 uv tool install git+https://github.com/thrum-labs/thrum-client
 
-export THRUM_API_URL=http://127.0.0.1:8000   # your backend
+export THRUM_API_URL=https://thrumlabs.com
 thrum init
 ```
 
@@ -104,8 +104,8 @@ Environment variables (read from `~/.config/thrum/env` or the shell):
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `THRUM_API_URL` | `http://127.0.0.1:8000` | Thrum backend (auth, ingest control plane). |
-| `THRUM_COLLECTOR_URL` | `http://127.0.0.1:4318/v1/traces` | OTLP/HTTP collector. |
+| `THRUM_API_URL` | `https://thrumlabs.com` | Thrum backend (auth, ingest control plane). |
+| `THRUM_COLLECTOR_URL` | `https://collector.thrumlabs.com/v1/traces` | OTLP/HTTP collector. |
 | `THRUM_CONFIG_DIR` | `~/.config/thrum` | Token, buffers, logs, backfill marker. |
 | `THRUM_CLAUDE_DIR` | `~/.claude` | Claude Code settings dir (only used when registering Claude Code hooks). |
 | `CODEX_HOME` | `~/.codex` | Codex CLI config dir (only used when registering Codex hooks). Same env var Codex itself respects. |
@@ -118,7 +118,3 @@ Environment variables (read from `~/.config/thrum/env` or the shell):
 ## Privacy
 
 Prompts, completions, and tool I/O never leave the machine. Three allowlists enforce it: an ijson path allowlist in the parsers, an attribute allowlist in the span builder, and a field allowlist in `safe_log()`. A sentinel-fuzz test verifies the property across disk and OTLP wire.
-
-## Limitations
-
-- One Thrum account = one machine. After `thrum init` on a second machine, claiming that guest creates a separate Thrum identity — there is no endpoint today that folds activity from a second guest into your already-claimed account. Linking is planned (see `temp/claim-ui-spike.md` "Known limitations after v1") but not yet implemented.

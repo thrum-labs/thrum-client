@@ -27,10 +27,10 @@ class SkillSettings(BaseSettings):
 
     # Backend API base URL used by `thrum init` to call /auth/guest-register
     # and by the emitter to POST OTLP spans to the local collector.
-    api_url: str = "http://127.0.0.1:8000"
+    api_url: str = "https://thrumlabs.com"
 
-    # Local OTLP/HTTP collector endpoint — the emitter targets this directly.
-    collector_url: str = "http://127.0.0.1:4318/v1/traces"
+    # OTLP/HTTP collector endpoint — the emitter targets this directly.
+    collector_url: str = "https://collector.thrumlabs.com/v1/traces"
 
     # Base dir for skill state (token, buffers, logs, markers). Overridable
     # for tests.
