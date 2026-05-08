@@ -8,13 +8,16 @@ planted file from leaking content back into our process).
 
 from __future__ import annotations
 
-import fcntl
 import json
 import re
+import sys
 from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterator
+
+if sys.platform != "win32":
+    import fcntl
 
 
 _SESSION_ID_RE = re.compile(r"^[a-zA-Z0-9_-]{1,128}$")
@@ -140,11 +143,19 @@ def buffer_lock(buffers_dir: Path, session_id: str) -> Iterator[None]:
     Claude Code currently runs hooks serially per session, so the hot race
     is theoretical. The atomic-rename in save_buffer already prevents
     partial writes, but two interleaved load→save cycles could still clobber
-    each other's tool-name lists. POSIX `fcntl.flock` on a
-    companion `.lock` file closes that window with zero cross-process state.
+    each other's tool-name lists. POSIX `fcntl.flock` on a companion
+    `.lock` file closes that window with zero cross-process state.
+
+    Windows has no equivalent that matches `LOCK_EX`'s indefinite-block
+    semantics (`msvcrt.locking(LK_LOCK)` raises after 10s under contention,
+    which is worse than no lock for our serial-per-session use case), so
+    the lock is a no-op there. Acceptable because the race is theoretical.
     """
     _validate_session_id(session_id)
     buffers_dir.mkdir(parents=True, exist_ok=True)
+    if sys.platform == "win32":
+        yield
+        return
     lock_path = buffers_dir / f"{session_id}.lock"
     with lock_path.open("w") as f:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX)

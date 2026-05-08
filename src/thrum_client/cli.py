@@ -43,16 +43,23 @@ def _write_token(path: Path, api_key: str) -> None:
 
 def _hook_command() -> str:
     """Return the `command` string written into Claude's settings.json /
-    Codex's config.toml. Both harnesses pass this value to `/bin/sh -c`,
-    so an unquoted path containing whitespace ("…/thrum vibe/.venv/…")
-    would be split into multiple arguments and fail with `No such file
-    or directory`. `shlex.quote` is a no-op for safe paths and inserts
-    the single-quote wrapper only when needed.
+    Codex's config.toml. Both harnesses pass this value to `/bin/sh -c`
+    (Git Bash on Windows), so an unquoted path containing whitespace
+    ("…/thrum vibe/.venv/…") would be split into multiple arguments
+    and fail with `No such file or directory`. `shlex.quote` is a no-op
+    for safe paths and inserts the single-quote wrapper only when needed.
+
+    On Windows, `shutil.which` returns a backslash path
+    (`C:\\Users\\…\\thrum-hook.EXE`); bash interprets `\\U`, `\\b`, etc.
+    as escape sequences and silently strips them. Forward slashes are
+    accepted by both Windows APIs and bash, so we normalise.
     """
     env_cmd = os.environ.get("THRUM_HOOK_CMD")
     if env_cmd:
         return env_cmd
     cmd = shutil.which("thrum-hook") or "thrum-hook"
+    if sys.platform == "win32":
+        cmd = cmd.replace("\\", "/")
     return shlex.quote(cmd) if any(c in cmd for c in " \t'\"") else cmd
 
 
