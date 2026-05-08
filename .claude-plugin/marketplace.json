@@ -4,10 +4,7 @@
   "plugins": [
     {
       "name": "thrum-client",
-      "source": {
-        "source": "github",
-        "repo": "thrum-labs/thrum-client"
-      },
+      "source": ".",
       "category": "Productivity"
     }
   ]
