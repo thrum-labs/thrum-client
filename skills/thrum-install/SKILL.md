@@ -1,6 +1,6 @@
 ---
 name: thrum-install
-description: Install the Thrum activity tracking client — runs `uv tool install`, calls `thrum init` to guest-register against the Thrum backend, merges hooks, and runs the one-time backfill. Use when the user asks to install Thrum, start tracking AI activity, or set up the Thrum client.
+description: Install the Thrum activity tracking client — runs `uv tool install`, calls `thrum init` to guest-register against the Thrum backend, and merges hooks. Use when the user asks to install Thrum, start tracking AI activity, or set up the Thrum client.
 ---
 
 # Install Thrum
@@ -42,11 +42,12 @@ export THRUM_API_URL=http://127.0.0.1:8000
 thrum init
 ```
 
-`thrum init` does three things atomically:
+`thrum init` does two things atomically:
 
 1. **Guest-register.** POSTs `/api/v1/auth/guest-register`, gets back a `tk_…` API key, writes it to `~/.config/thrum/token` (mode 0600).
 2. **Register hooks.** Additively merges entries for the supported lifecycle events into `~/.claude/settings.json` (Claude Code: `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `SubagentStop`, `PreCompact`, `Stop`, `SessionEnd`). Codex CLI and Cursor registration are offered on demand. Existing hook entries are preserved.
-3. **Backfill.** One-time pass over existing transcripts under `~/.claude/projects/*/*.jsonl` — one `thrum.metadata.backfill=true` span per historical turn (deduped by `message.id`). Idempotent via `~/.config/thrum/.backfill_done`.
+
+Backfill of existing transcripts is no longer run by `init`. Run `thrum backfill` separately to replay historical Claude / Codex / Cursor sessions (one-time, idempotent via marker files under `~/.config/thrum/`).
 
 ## 4. Confirm
 
@@ -54,7 +55,7 @@ thrum init
 thrum status
 ```
 
-Expect `Token present: True` and `Backfill done: True`.
+Expect `Token present: True`. `Backfill done` will read `False` until you run `thrum backfill`.
 
 ## 5. What changed
 

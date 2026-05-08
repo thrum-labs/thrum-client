@@ -6,12 +6,13 @@ Privacy-respecting activity tracker for AI coding sessions. Captures one OTLP sp
 
 - Hooks into Claude Code, Codex CLI, and Cursor lifecycle events.
 - Emits one OTLP span per assistant turn: model, token counts, tools used, latency, plan boundaries, compact transitions.
-- One-time backfill over existing transcripts on first install (idempotent).
+- Optional one-time backfill over existing transcripts via `thrum backfill` (idempotent).
 - Per-project opt-out: `touch .thrum-disable` in any project (or ancestor) directory.
 
 ## Install
 
-You'll need [uv](https://docs.astral.sh/uv/) (or [pipx](https://pipx.pypa.io/)) and a reachable Thrum backend.
+You'll need [uv](https://docs.astral.sh/uv/) (or [pipx](https://pipx.pypa.io/)). 
+*On Windows, install Git for Windows and reopen your terminal so `git.exe` is discoverable.*
 
 ```bash
 uv tool install git+https://github.com/thrum-labs/thrum-client
@@ -21,7 +22,7 @@ thrum init
 
 Don't have `uv`? `pipx install git+https://github.com/thrum-labs/thrum-client` works identically.
 
-`thrum init` registers a guest user, merges hook entries into `~/.claude/settings.json` (Claude Code), optionally `~/.codex/config.toml` (Codex CLI) and `~/.cursor/hooks.json` (Cursor) when you opt in, and runs the one-time backfill.
+`thrum init` registers a guest user and merges hook entries into `~/.claude/settings.json` (Claude Code), optionally `~/.codex/config.toml` (Codex CLI) and `~/.cursor/hooks.json` (Cursor) when you opt in. Run `thrum backfill` separately if you want to replay existing transcripts.
 
 ## Verify
 
@@ -29,7 +30,7 @@ Don't have `uv`? `pipx install git+https://github.com/thrum-labs/thrum-client` w
 thrum status
 ```
 
-Expect `Token present: True` and `Backfill done: True`.
+Expect `Token present: True`. `Backfill done` will read `False` until you run `thrum backfill`.
 
 ## Uninstall
 

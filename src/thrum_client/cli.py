@@ -231,13 +231,11 @@ def _run_backfill_pair(
 
 @main.command()
 def init() -> None:
-    """Register as a guest, merge hooks, and run any pending backfill.
+    """Register as a guest and merge hooks.
 
-    Idempotent — re-running on an installed machine is safe and lets the
-    backfill loops pick up new transcript sources (e.g. Codex rollouts
-    accumulated since the original install) without an explicit
-    `thrum backfill` invocation. Marker files prevent re-emitting turns
-    that have already been ingested.
+    Idempotent — re-running on an installed machine is safe. Backfill
+    of historical transcripts is not run here; invoke `thrum backfill`
+    explicitly to replay existing Claude / Codex / Cursor sessions.
     """
     settings = load_settings()
 
@@ -292,10 +290,6 @@ def init() -> None:
 
         _maybe_register_codex_hooks(settings)
         _maybe_register_cursor_hooks(settings)
-
-    _run_backfill_pair(
-        settings, claude=True, codex=True, cursor=True, force=False
-    )
 
 
 @main.command()

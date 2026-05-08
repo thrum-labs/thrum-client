@@ -449,13 +449,11 @@ def test_backfill_rejects_both_sources_disabled(tmp_home: Path, monkeypatch):
     assert "Nothing to do" in r.output
 
 
-def test_init_runs_backfill_on_re_init_with_existing_token(
+def test_init_does_not_run_backfill_on_re_init_with_existing_token(
     tmp_home: Path, mock_guest_register, monkeypatch
 ):
-    """Regression for the silent skip — running `thrum init` on an
-    already-installed machine must still hit both backfill loops so a
-    new transcript source (or a parser update) is picked up without an
-    explicit `thrum backfill` invocation."""
+    """`thrum init` no longer runs backfill — neither on first install nor
+    on re-init. Users invoke `thrum backfill` explicitly."""
     _seed_token(tmp_home)
     monkeypatch.setenv("THRUM_HOOK_CMD", "/fake/bin/thrum-hook")
 
@@ -480,11 +478,8 @@ def test_init_runs_backfill_on_re_init_with_existing_token(
     r = runner.invoke(main, ["init"])
     assert r.exit_code == 0, r.output
     assert "Already installed" in r.output
-    # guest-register MUST NOT fire on re-init.
     assert mock_guest_register["calls"] == 0
-    # ...but both backfill loops MUST run, even when the marker is present —
-    # they're individually responsible for marker idempotency.
-    assert called == {"claude": True, "codex": True}
+    assert called == {"claude": False, "codex": False}
 
 
 # ---- Cursor (FR-218f) ----
@@ -648,10 +643,10 @@ def test_backfill_all_disabled_errors(tmp_home: Path):
     assert "all sources disabled" in r.output
 
 
-def test_init_existing_token_runs_cursor_backfill_too(
+def test_init_existing_token_does_not_run_cursor_backfill(
     tmp_home: Path, mock_guest_register, monkeypatch
 ):
-    """Re-init on an installed machine still triggers all three backfills."""
+    """Re-init on an installed machine no longer triggers any backfill loop."""
     _seed_token(tmp_home)
     monkeypatch.setenv("THRUM_HOOK_CMD", "/fake/bin/thrum-hook")
 
@@ -673,4 +668,4 @@ def test_init_existing_token_runs_cursor_backfill_too(
     runner = CliRunner()
     r = runner.invoke(main, ["init"])
     assert r.exit_code == 0, r.output
-    assert called == {"claude": True, "codex": True, "cursor": True}
+    assert called == {"claude": False, "codex": False, "cursor": False}
