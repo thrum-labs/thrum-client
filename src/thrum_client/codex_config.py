@@ -162,7 +162,7 @@ def merge_codex_hooks(config_path: Path, command: str) -> bool:
     table (e.g. `[projects.<path>]`, `[tui.*]`) via tomlkit round-trip.
     """
     if config_path.exists():
-        doc = tomlkit.parse(config_path.read_text())
+        doc = tomlkit.parse(config_path.read_text(encoding="utf-8"))
     else:
         config_path.parent.mkdir(parents=True, exist_ok=True)
         doc = tomlkit.document()
@@ -192,7 +192,7 @@ def merge_codex_hooks(config_path: Path, command: str) -> bool:
 
     if not changed:
         return False
-    config_path.write_text(tomlkit.dumps(doc))
+    config_path.write_text(tomlkit.dumps(doc), encoding="utf-8")
     return True
 
 
@@ -228,7 +228,7 @@ def unmerge_codex_hooks(config_path: Path) -> bool:
     """
     if not config_path.exists():
         return False
-    doc = tomlkit.parse(config_path.read_text())
+    doc = tomlkit.parse(config_path.read_text(encoding="utf-8"))
     if "hooks" not in doc:
         return False
     hooks_table = doc["hooks"]
@@ -264,5 +264,5 @@ def unmerge_codex_hooks(config_path: Path) -> bool:
 
     if not changed:
         return False
-    config_path.write_text(tomlkit.dumps(doc))
+    config_path.write_text(tomlkit.dumps(doc), encoding="utf-8")
     return True

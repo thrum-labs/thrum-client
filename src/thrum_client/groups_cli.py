@@ -108,7 +108,7 @@ def _headers(settings: SkillSettings) -> dict[str, str]:
             f"Not installed — no token at {settings.token_path}. "
             "Run `thrum init` first."
         )
-    return {"x-api-key": settings.token_path.read_text().strip()}
+    return {"x-api-key": settings.token_path.read_text(encoding="utf-8").strip()}
 
 
 def _http(settings: SkillSettings) -> httpx.Client:

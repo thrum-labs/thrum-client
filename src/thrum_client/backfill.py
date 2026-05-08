@@ -182,7 +182,7 @@ def run_backfill(
     if not root.exists():
         safe_log("backfill_no_projects_dir", log_path=settings.log_path)
         marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text(datetime.now(UTC).isoformat())
+        marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
         return 0
 
     total = 0
@@ -196,7 +196,7 @@ def run_backfill(
                 error_category=type(exc).__name__,
             )
     marker.parent.mkdir(parents=True, exist_ok=True)
-    marker.write_text(datetime.now(UTC).isoformat())
+    marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
     safe_log(
         "backfill_complete",
         log_path=settings.log_path,
@@ -316,7 +316,7 @@ def run_codex_backfill(
     if not root.exists():
         safe_log("codex_backfill_no_sessions_dir", log_path=settings.log_path)
         marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text(datetime.now(UTC).isoformat())
+        marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
         return 0
 
     total = 0
@@ -332,7 +332,7 @@ def run_codex_backfill(
                 error_category=type(exc).__name__,
             )
     marker.parent.mkdir(parents=True, exist_ok=True)
-    marker.write_text(datetime.now(UTC).isoformat())
+    marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
     safe_log(
         "codex_backfill_complete",
         log_path=settings.log_path,
@@ -596,7 +596,7 @@ def run_cursor_backfill(
     if not root.exists():
         safe_log("cursor_backfill_no_projects_dir", log_path=settings.log_path)
         marker.parent.mkdir(parents=True, exist_ok=True)
-        marker.write_text(datetime.now(UTC).isoformat())
+        marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
         return 0
 
     total = 0
@@ -612,7 +612,7 @@ def run_cursor_backfill(
                 error_category=type(exc).__name__,
             )
     marker.parent.mkdir(parents=True, exist_ok=True)
-    marker.write_text(datetime.now(UTC).isoformat())
+    marker.write_text(datetime.now(UTC).isoformat(), encoding="utf-8")
     safe_log(
         "cursor_backfill_complete",
         log_path=settings.log_path,

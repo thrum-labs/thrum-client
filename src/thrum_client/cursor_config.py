@@ -129,7 +129,7 @@ def merge_cursor_hooks(hooks_path: Path, command: str) -> bool:
     """
     if hooks_path.exists():
         try:
-            doc = json.loads(hooks_path.read_text())
+            doc = json.loads(hooks_path.read_text(encoding="utf-8"))
         except json.JSONDecodeError as exc:
             raise ValueError(
                 f"hooks.json at {hooks_path} is not valid JSON: {exc}"
@@ -185,7 +185,7 @@ def unmerge_cursor_hooks(hooks_path: Path) -> bool:
         return False
 
     try:
-        doc = json.loads(hooks_path.read_text())
+        doc = json.loads(hooks_path.read_text(encoding="utf-8"))
     except json.JSONDecodeError:
         # Corrupt file — leave alone; user must repair manually.
         return False

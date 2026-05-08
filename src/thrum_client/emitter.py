@@ -382,7 +382,7 @@ def _envelope(span: Span) -> bytes:
 def _read_token(settings: SkillSettings) -> str:
     if not settings.token_path.exists():
         return ""
-    return settings.token_path.read_text().strip()
+    return settings.token_path.read_text(encoding="utf-8").strip()
 
 
 _EMIT_RETRY_BACKOFF_S = 0.1

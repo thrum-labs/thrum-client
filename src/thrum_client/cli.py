@@ -37,7 +37,7 @@ from thrum_client.settings_merge import merge_hooks, unmerge_hooks
 def _write_token(path: Path, api_key: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     # Write then chmod so the final mode is 0600 even if umask is tight.
-    path.write_text(api_key)
+    path.write_text(api_key, encoding="utf-8")
     os.chmod(path, 0o600)
 
 
@@ -503,7 +503,7 @@ def _read_state(path: Path) -> dict:
     if not path.exists():
         return {}
     try:
-        return json.loads(path.read_text() or "{}")
+        return json.loads(path.read_text(encoding="utf-8") or "{}")
     except json.JSONDecodeError:
         return {}
 
@@ -515,7 +515,7 @@ def _write_state(path: Path, **fields) -> None:
     current.update(fields)
     current["updated_at"] = datetime.now(UTC).isoformat()
     tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(current, separators=(",", ":")))
+    tmp.write_text(json.dumps(current, separators=(",", ":")), encoding="utf-8")
     tmp.replace(path)
 
 

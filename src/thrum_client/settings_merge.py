@@ -69,7 +69,7 @@ def _is_our_hook(command: str) -> bool:
 def _load(settings_path: Path) -> dict[str, Any]:
     if not settings_path.exists():
         return {}
-    with settings_path.open() as f:
+    with settings_path.open(encoding="utf-8") as f:
         raw = f.read().strip() or "{}"
     parsed = json.loads(raw)
     if not isinstance(parsed, dict):
@@ -159,7 +159,7 @@ def merge_hooks(
         return False
 
     tmp = settings_path.with_suffix(settings_path.suffix + ".thrum-tmp")
-    with tmp.open("w") as f:
+    with tmp.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
     tmp.replace(settings_path)
@@ -223,7 +223,7 @@ def unmerge_hooks(
         return False
 
     tmp = settings_path.with_suffix(settings_path.suffix + ".thrum-tmp")
-    with tmp.open("w") as f:
+    with tmp.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
     tmp.replace(settings_path)

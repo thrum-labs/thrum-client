@@ -106,7 +106,7 @@ def load_buffer(buffers_dir: Path, session_id: str) -> dict[str, Any] | None:
     if not path.exists():
         return None
     try:
-        with path.open() as f:
+        with path.open(encoding="utf-8") as f:
             data = json.load(f)
     except (OSError, json.JSONDecodeError) as exc:
         raise BufferError(f"unreadable buffer: {type(exc).__name__}")
@@ -123,7 +123,7 @@ def save_buffer(buffers_dir: Path, data: dict[str, Any]) -> None:
     path = buffer_path(buffers_dir, data["session_id"])
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(path.suffix + ".tmp")
-    with tmp.open("w") as f:
+    with tmp.open("w", encoding="utf-8") as f:
         json.dump(data, f, separators=(",", ":"))
     tmp.replace(path)
 
