@@ -1,0 +1,17 @@
+{
+  "name": "thrum-labs-thrum-client",
+  "owner": {
+    "name": "Thrum Labs"
+  },
+  "metadata": {
+    "description": "Install and manage the Thrum activity tracker — captures one OTLP span per assistant turn from Claude Code, Codex CLI, and Cursor."
+  },
+  "plugins": [
+    {
+      "name": "thrum-client",
+      "source": ".",
+      "description": "Install and manage the Thrum activity tracker — captures one OTLP span per assistant turn from Claude Code, Codex CLI, and Cursor.",
+      "category": "Productivity"
+    }
+  ]
+}

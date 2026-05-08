@@ -1,0 +1,20 @@
+{
+  "name": "thrum-labs-thrum-client",
+  "interface": {
+    "displayName": "Thrum Client"
+  },
+  "plugins": [
+    {
+      "name": "thrum-client",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/thrum-labs/thrum-client.git"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
