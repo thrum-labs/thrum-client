@@ -91,6 +91,14 @@ def _now_iso() -> str:
     return datetime.now(UTC).isoformat()
 
 
+def _record_last_event(settings: SkillSettings) -> None:
+    # Imported lazily to keep module load free of cli.py's click dependency
+    # when handler.py runs as the hook entrypoint.
+    from thrum_client.cli import _write_state
+
+    _write_state(settings.state_path, last_event_ts=_now_iso())
+
+
 def _new_turn() -> dict[str, Any]:
     return {
         "turn_start_ts": _now_iso(),
@@ -501,6 +509,7 @@ def handle_event(raw: bytes, settings: SkillSettings) -> int:
             save_buffer(settings.buffers_dir, buffer)
         elif action.persist == "delete":
             delete_buffer(settings.buffers_dir, event.session_id)
+    _record_last_event(settings)
     return 0
 
 
@@ -779,6 +788,7 @@ def _handle_codex_event(raw: bytes, settings: SkillSettings) -> int:
             save_buffer(settings.buffers_dir, buffer)
         elif action.persist == "delete":
             delete_buffer(settings.buffers_dir, event.session_id)
+    _record_last_event(settings)
     return 0
 
 
@@ -1134,6 +1144,7 @@ def _handle_cursor_event(raw: bytes, settings: SkillSettings) -> int:
             save_buffer(settings.buffers_dir, buffer)
         elif action.persist == "delete":
             delete_buffer(settings.buffers_dir, event.session_id)
+    _record_last_event(settings)
     return 0
 
 
