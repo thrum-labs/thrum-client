@@ -6,12 +6,7 @@
       "name": "thrum-client",
       "source": {
         "source": "github",
-        "owner": "thrum-labs",
-        "repo": "thrum-client"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
+        "repo": "thrum-labs/thrum-client"
       },
       "category": "Productivity"
     }
