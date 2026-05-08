@@ -11,49 +11,11 @@ Privacy-respecting activity tracker for AI coding sessions. Captures one OTLP sp
 
 ## Install
 
-### Option A — From your AI coding tool (recommended)
-
-This repo ships skill bundles for Claude Code, Codex CLI, and Cursor. Pick your tool:
-
-**Claude Code:**
-
-```text
-/plugin marketplace add thrum-labs/thrum-client
-/plugin install thrum-client@thrum-labs-thrum-client
-```
-
-**Codex CLI:**
-
-```bash
-codex plugin marketplace add thrum-labs/thrum-client
-```
-
-Then install via `codex /plugins`.
-
-**Cursor:**
-
-```bash
-git clone https://github.com/thrum-labs/thrum-client.git ~/.cursor/plugins/local/thrum-client
-```
-
-Restart Cursor.
-
-After install, three slash commands are available in your tool:
-
-- `/thrum-client:thrum-install` — guides you through `uv tool install` + `thrum init`.
-- `/thrum-client:thrum-status` — checks token, last event, backfill state.
-- `/thrum-client:thrum-uninstall` — removes hooks + token (and optionally binaries).
-
-Run `/thrum-client:thrum-install` and follow the prompts.
-
-### Option B — Direct CLI install
-
 You'll need [uv](https://docs.astral.sh/uv/) (or [pipx](https://pipx.pypa.io/)) and a reachable Thrum backend.
 
 ```bash
 uv tool install git+https://github.com/thrum-labs/thrum-client
 
-export THRUM_API_URL=https://thrumlabs.com
 thrum init
 ```
 
@@ -75,27 +37,6 @@ Expect `Token present: True` and `Backfill done: True`.
 thrum uninstall            # removes hook entries + local token
 thrum uninstall --full     # also removes ~/.config/thrum/
 uv tool uninstall thrum-client   # removes the binaries (or `pipx uninstall thrum-client`)
-```
-
-If you installed via Option A (plugin install), also remove the plugin from your AI tool:
-
-**Claude Code:**
-
-```text
-/plugin uninstall thrum-client@thrum-labs-thrum-client
-/plugin marketplace remove thrum-labs-thrum-client
-```
-
-**Codex CLI:**
-
-```bash
-codex plugin marketplace remove thrum-labs/thrum-client
-```
-
-**Cursor:**
-
-```bash
-rm -rf ~/.cursor/plugins/local/thrum-client
 ```
 
 ## Configuration
