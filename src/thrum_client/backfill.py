@@ -437,7 +437,7 @@ def _scan_cursor_transcript_for_backfill(
     open_gen = False
 
     try:
-        with transcript.open("r") as f:
+        with transcript.open("r", encoding="utf-8") as f:
             for raw in f:
                 raw = raw.strip()
                 if not raw:

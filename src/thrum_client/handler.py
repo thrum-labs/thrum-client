@@ -1148,8 +1148,15 @@ def _handle_cursor_event(raw: bytes, settings: SkillSettings) -> int:
     return 0
 
 
+_UTF8_BOM = b"\xef\xbb\xbf"
+
+
 def main() -> int:
     raw = sys.stdin.buffer.read()
+    if raw.startswith(_UTF8_BOM):
+        # Cursor on Windows prepends a UTF-8 BOM to hook payloads which
+        # ijson can't parse. Strip it before any downstream processing.
+        raw = raw[len(_UTF8_BOM):]
     settings = load_settings()
     detected = _detect_source_tool(raw)
     if detected == CURSOR_SOURCE_TOOL:

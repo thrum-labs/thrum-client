@@ -169,7 +169,7 @@ def iter_cursor_turns(path: Path) -> Iterable[CursorTurnAggregate]:
     current: list[str] = []  # current generation's tool intents
     open_gen = False
 
-    with path.open("r") as f:
+    with path.open("r", encoding="utf-8") as f:
         for raw_line in f:
             raw_line = raw_line.strip()
             if not raw_line:
