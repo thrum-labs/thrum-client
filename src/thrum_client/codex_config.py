@@ -13,7 +13,10 @@ uninstall.
 
 Version gate: Codex hooks landed under a stable `codex_hooks` flag in
 0.123.0 but inline `[hooks]` table support in `config.toml` only arrived
-in 0.124.0 — so the gate is `>= 0.124.0` (FR-218c).
+in 0.124.0 — so the gate is `>= 0.124.0` (FR-218c). Later releases
+renamed the flag from `codex_hooks` to `hooks` and started emitting a
+deprecation warning for the old name; we write the new key and migrate
+any pre-existing `codex_hooks` entry.
 """
 
 from __future__ import annotations
@@ -122,25 +125,33 @@ def _group_contains_command(group: object, command: str) -> bool:
 
 
 def _ensure_codex_hooks_feature_flag(doc) -> bool:
-    """Set `[features] codex_hooks = true`. The Codex `codex_hooks` flag is
-    `stable` (per `codex features list`), but that's a maturity tag — the
-    runtime state still requires opt-in via `[features]`. Without this,
-    hooks compile in but never load. Verified empirically against 0.125.
+    """Set `[features] hooks = true`. The flag is `stable` (per
+    `codex features list`), but that's a maturity tag — the runtime state
+    still requires opt-in via `[features]`. Without this, hooks compile in
+    but never load. Verified empirically against 0.125.
+
+    Older Codex releases used the name `codex_hooks`; newer releases
+    renamed it to `hooks` and emit a deprecation warning for the old key.
+    Migrate any existing `codex_hooks` entry to `hooks`.
 
     Returns True iff the doc was changed.
     """
     if "features" not in doc:
         doc["features"] = tomlkit.table()
     features = doc["features"]
-    if features.get("codex_hooks") is True:
-        return False
-    features["codex_hooks"] = True
-    return True
+    changed = False
+    if "codex_hooks" in features:
+        del features["codex_hooks"]
+        changed = True
+    if features.get("hooks") is not True:
+        features["hooks"] = True
+        changed = True
+    return changed
 
 
 def merge_codex_hooks(config_path: Path, command: str) -> bool:
     """Insert Thrum hook entries for the six Codex events plus enable the
-    `codex_hooks` feature flag. Idempotent.
+    `hooks` feature flag. Idempotent.
 
     Schema is `{event: [{matcher, hooks: [{type, command}]}]}` — the same
     matcher-group form Claude Code uses, deserialized by Codex into
@@ -211,9 +222,9 @@ def unmerge_codex_hooks(config_path: Path) -> bool:
     Owned = basename of `command` equals `thrum-hook`. Third-party entries
     in the same array survive; arrays that become empty are deleted along
     with their event key. The `[hooks]` table itself is removed if it ends
-    up empty so we don't leave a stray header. The `[features]
-    codex_hooks = true` we set in merge is left in place — flipping it to
-    false would surprise the user if they have non-Thrum hooks registered.
+    up empty so we don't leave a stray header. The `[features] hooks =
+    true` we set in merge is left in place — flipping it to false would
+    surprise the user if they have non-Thrum hooks registered.
     """
     if not config_path.exists():
         return False

@@ -107,15 +107,34 @@ def test_merge_creates_six_hook_events_in_fresh_file(tmp_path: Path):
         assert group["hooks"][0]["command"] == "/usr/local/bin/thrum-hook"
 
 
-def test_merge_enables_codex_hooks_feature_flag(tmp_path: Path):
-    """`codex features list` shows codex_hooks=stable but that's a maturity
-    label — the runtime requires `[features] codex_hooks = true` in
-    config.toml. Without it hooks compile in but never load (verified
-    empirically against codex-cli 0.125.0)."""
+def test_merge_enables_hooks_feature_flag(tmp_path: Path):
+    """`codex features list` shows the flag as stable but that's a maturity
+    label — the runtime requires `[features] hooks = true` in config.toml.
+    Without it hooks compile in but never load (verified empirically
+    against codex-cli 0.125.0). Older Codex releases used `codex_hooks`;
+    newer releases deprecated that name in favour of `hooks`."""
     cfg = tmp_path / "config.toml"
     merge_codex_hooks(cfg, "/usr/local/bin/thrum-hook")
     doc = tomlkit.parse(cfg.read_text())
-    assert doc["features"]["codex_hooks"] is True
+    assert doc["features"]["hooks"] is True
+    assert "codex_hooks" not in doc["features"]
+
+
+def test_merge_migrates_legacy_codex_hooks_flag(tmp_path: Path):
+    """If a previous install wrote `[features] codex_hooks = true`, replace
+    it with `hooks = true` so newer Codex stops emitting the deprecation
+    warning."""
+    cfg = tmp_path / "config.toml"
+    cfg.write_text(textwrap.dedent("""\
+        [features]
+        codex_hooks = true
+        """))
+
+    merge_codex_hooks(cfg, "/usr/local/bin/thrum-hook")
+
+    doc = tomlkit.parse(cfg.read_text())
+    assert doc["features"]["hooks"] is True
+    assert "codex_hooks" not in doc["features"]
 
 
 def test_merge_preserves_user_projects_and_tui_blocks(tmp_path: Path):
@@ -242,7 +261,7 @@ def test_unmerge_drops_event_key_when_array_becomes_empty(tmp_path: Path):
 def test_install_then_uninstall_preserves_user_blocks(tmp_path: Path):
     """T14 threat-model test: install + uninstall must leave
     `[projects.<path>]` and `[tui.*]` exactly as the user wrote them.
-    Note: `[features] codex_hooks = true` (set on install) is intentionally
+    Note: `[features] hooks = true` (set on install) is intentionally
     left behind on uninstall — flipping it would surprise the user if they
     have non-Thrum hooks registered."""
     cfg = tmp_path / "config.toml"
@@ -256,8 +275,8 @@ def test_install_then_uninstall_preserves_user_blocks(tmp_path: Path):
     assert doc["projects"]["/Users/me/work/project-b"]["trust_level"] == "ask"
     assert doc["tui"]["model_availability_nux"]["gpt-5.5"] == 1
     assert "hooks" not in doc
-    # codex_hooks feature flag is sticky on uninstall — see merge docstring.
-    assert doc["features"]["codex_hooks"] is True
+    # hooks feature flag is sticky on uninstall — see merge docstring.
+    assert doc["features"]["hooks"] is True
 
 
 def test_unmerge_returns_false_when_file_missing(tmp_path: Path):

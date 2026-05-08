@@ -87,11 +87,12 @@ def test_init_skips_when_token_exists(tmp_home: Path, mock_guest_register, monke
     assert set(data["hooks"].keys()) == set(HOOK_EVENTS)
 
 
-def test_init_runs_backfill_on_first_install(tmp_home: Path, monkeypatch):
+def test_init_does_not_run_backfill_on_first_install(tmp_home: Path, monkeypatch):
     from tests.fixtures.otlp_receiver import Capture, capture_http_post
     from tests.fixtures.transcripts import assistant_record, write_jsonl
 
-    # Seed one historical transcript with one end_turn
+    # Seed one historical transcript with one end_turn — would be picked up
+    # by backfill if init still ran it.
     projects = tmp_home / ".claude" / "projects" / "hash"
     projects.mkdir(parents=True)
     write_jsonl(
@@ -107,8 +108,6 @@ def test_init_runs_backfill_on_first_install(tmp_home: Path, monkeypatch):
         ],
     )
 
-    # Route /v1/traces to the capture app; handle /api/v1/auth/guest-register
-    # with a canned 201 response.
     cap = Capture()
     collector_post, close = capture_http_post(cap)
 
@@ -136,12 +135,9 @@ def test_init_runs_backfill_on_first_install(tmp_home: Path, monkeypatch):
         runner = CliRunner()
         result = runner.invoke(main, ["init"])
         assert result.exit_code == 0, result.output
-        assert "Backfilled 1" in result.output
-
-        attrs = cap.all_attrs()
-        assert len(attrs) == 1
-        assert attrs[0]["thrum.metadata.backfill"] is True
-        assert attrs[0]["gen_ai.usage.input_tokens"] == 42
+        assert "Backfilled" not in result.output
+        assert cap.all_attrs() == []
+        assert not (tmp_home / ".config" / "thrum" / ".backfill_done").exists()
     finally:
         close()
 
@@ -187,7 +183,7 @@ def test_init_registers_codex_hooks_when_version_ok(
     assert "hooks" in doc
     # Feature flag must be set or hooks compile in but never load (see
     # codex_config._ensure_codex_hooks_feature_flag).
-    assert doc["features"]["codex_hooks"] is True
+    assert doc["features"]["hooks"] is True
     # Six events registered in matcher-group schema.
     for event in (
         "SessionStart",
